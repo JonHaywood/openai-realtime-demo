@@ -1,4 +1,3 @@
-import { convertAudioToBase64String } from './audio';
 import { createMicrophone, Microphone } from './microphone';
 import { handleOpenAIMessage } from './realtime';
 import { createServer, Server } from './server';
@@ -21,8 +20,7 @@ function wireupShutdownHandlers(onShutdown: () => void) {
 function streamMicrophoneDataToServer(server: Server, microphone: Microphone) {
   microphone.startRecording(async (data) => {
     console.log('➡️ Received audio data from mic:', data.length);
-    // serialize audio data to send to server
-    const serializedAudio = await convertAudioToBase64String(data);
+    const serializedAudio = data.toString('base64');
     server.sendAudio(serializedAudio);
   });
 }

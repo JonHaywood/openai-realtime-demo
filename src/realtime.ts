@@ -1,4 +1,3 @@
-import { convertBase64StringToBuffer } from './audio';
 import { Server } from './server';
 import { playAudio } from './speaker';
 
@@ -27,7 +26,7 @@ export async function handleOpenAIMessage(message: string, server: Server) {
     // TODO: interrupt any ongoing speech
   } else if (payload.type === 'response.audio.delta') {
     const response = payload as ResponseAudioDelta;
-    const audioData = convertBase64StringToBuffer(response.delta);
+    const audioData = Buffer.from(response.delta, 'base64');
     console.log('🧠 Received audio data from Open AI:', audioData.length);
     playAudio(audioData);
   } else if (payload.type === 'error') {
