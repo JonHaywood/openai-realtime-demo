@@ -29,17 +29,17 @@ async function main() {
   // create microphone instance
   const microphone = createMicrophone();
 
-  // when the user stops the app, run the below code
+  // when the user stops the app, run the callback
   wireupShutdownHandlers(() => {
     microphone.stopRecording();
     stopServer();
   });
 
   // start server and wait until is stops
-  console.log('➡️ Starting server...');
+  console.log('🖥️ Starting server...');
   await startServer({
     onOpen: () => {
-      console.log('➡️ Server started. Press Ctrl+C to stop.');
+      console.log('🖥️ Server started. Press Ctrl+C to stop.');
 
       // once connected, start streaming microphone data
       streamMicrophoneDataToServer(microphone);
@@ -50,7 +50,7 @@ async function main() {
     },
   });
 
-  console.log('➡️ Server has stopped. Shutdown complete.');
+  console.log('🖥️ Server has stopped. Shutdown complete.');
 }
 
 main();
