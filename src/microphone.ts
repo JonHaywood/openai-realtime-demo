@@ -9,7 +9,7 @@ export function createMicrophone(): Microphone {
   const micInstance = mic({
     rate: '16000',
     channels: '1',
-    debug: true,
+    debug: false,
     exitOnSilence: 6,
     device: 'default',
   });
@@ -18,10 +18,8 @@ export function createMicrophone(): Microphone {
     startRecording: (processAudio: (data: Buffer) => void) => {
       const micInputStream = micInstance.getAudioStream();
 
-      micInputStream.on('data', (data: Buffer) => {
-        console.log('🎤 Received input stream: ' + data.length);
-        processAudio(data);
-      });
+      // pass the audio data to the callback function
+      micInputStream.on('data', (data: Buffer) => processAudio(data));
 
       micInputStream.on('error', (err) => {
         console.error('🎤 Error in Input Stream: ' + err);

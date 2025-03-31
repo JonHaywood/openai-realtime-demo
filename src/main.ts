@@ -1,6 +1,6 @@
+import { createAudioMessage, handleOpenAIMessages } from './messages';
 import { createMicrophone, Microphone } from './microphone';
-import { handleOpenAIMessage } from './realtime';
-import { createServer, Server } from './server';
+import { sendMessage, startServer, stopServer } from './server';
 
 function wireupShutdownHandlers(onShutdown: () => void) {
   process.on('SIGINT', async () => {
@@ -17,11 +17,11 @@ function wireupShutdownHandlers(onShutdown: () => void) {
   });
 }
 
-function streamMicrophoneDataToServer(server: Server, microphone: Microphone) {
+function streamMicrophoneDataToServer(microphone: Microphone) {
   microphone.startRecording(async (data) => {
-    console.log('➡️ Received audio data from mic:', data.length);
-    const serializedAudio = data.toString('base64');
-    server.sendAudio(serializedAudio);
+    // continuously stream microphone data to Open AI
+    const audioMessage = createAudioMessage(data);
+    sendMessage(audioMessage);
   });
 }
 
@@ -29,29 +29,26 @@ async function main() {
   // create microphone instance
   const microphone = createMicrophone();
 
-  // create server instance
-  const server = createServer({
-    onOpen: () => {
-      console.log('➡️ Server started. Press Ctrl+C to stop.');
-
-      // once connected, start streaming microphone data
-      streamMicrophoneDataToServer(server, microphone);
-    },
-    onMessage: (message) => {
-      // all incoming messages are handled here
-      handleOpenAIMessage(message, server);
-    },
-  });
-
   // when the user stops the app, run the below code
   wireupShutdownHandlers(() => {
     microphone.stopRecording();
-    server.close();
+    stopServer();
   });
 
   // start server and wait until is stops
   console.log('➡️ Starting server...');
-  await server.start();
+  await startServer({
+    onOpen: () => {
+      console.log('➡️ Server started. Press Ctrl+C to stop.');
+
+      // once connected, start streaming microphone data
+      streamMicrophoneDataToServer(microphone);
+    },
+    onMessage: (message) => {
+      // all incoming messages are handled here
+      handleOpenAIMessages(message);
+    },
+  });
 
   console.log('➡️ Server has stopped. Shutdown complete.');
 }

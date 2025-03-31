@@ -7,6 +7,5 @@ const speaker = new Speaker({
 });
 
 export function playAudio(data: Buffer): void {
-  console.log('🎵 Playing audio data:', data.length);
   speaker.write(data);
 }

@@ -3,84 +3,50 @@ import WebSocket from 'ws';
 const REALTIME_API_URL =
   'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17';
 
-export interface Server {
-  start: () => Promise<void>;
-  sendAudio: (serializedAudio: string) => void;
-  sendInstructions: (instructions: string) => void;
-  close: () => void;
-}
+let ws: WebSocket | null = null;
 
-export function createServer({
+export async function startServer({
   onOpen,
   onMessage,
 }: {
   onOpen: () => void;
   onMessage: (message: string) => void;
-}): Server {
-  let ws: WebSocket | null = null;
+}): Promise<void> {
+  if (ws) throw new Error('Server already started');
 
-  return {
-    start() {
-      if (ws) throw new Error('Server already started');
-
-      // initialize WebSocket connection
-      ws = new WebSocket(REALTIME_API_URL, {
-        headers: {
-          Authorization: 'Bearer ' + process.env.OPENAI_API_KEY,
-          'OpenAI-Beta': 'realtime=v1',
-        },
-      });
-
-      // wire up handlers
-      ws.on('open', onOpen);
-      ws.on('message', onMessage);
-
-      return new Promise<void>((resolve) => {
-        // resolve promise when the web socket is closed
-        ws?.on('close', () => {
-          resolve();
-          ws = null;
-        });
-      });
+  // initialize WebSocket connection
+  ws = new WebSocket(REALTIME_API_URL, {
+    headers: {
+      Authorization: 'Bearer ' + process.env.OPENAI_API_KEY,
+      'OpenAI-Beta': 'realtime=v1',
     },
-    sendInstructions: (instructions: string) => {
-      if (!ws) {
-        console.error('🔌 sendInstructions: WebSocket not initialized');
-        return;
-      }
+  });
 
-      const event = {
-        type: 'session.update',
-        session: {
-          instructions,
-          modalities: ['text', 'audio'],
-          voice: 'echo',
-          input_audio_format: 'pcm16',
-          output_audio_format: 'pcm16',
-        },
-      };
-      ws.send(JSON.stringify(event));
-    },
-    sendAudio: (serializedAudio: string) => {
-      if (!ws) {
-        console.error('🔌 sendAudio: WebSocket not initialized');
-        return;
-      }
+  // wire up handlers
+  ws.on('open', onOpen);
+  ws.on('message', onMessage);
 
-      ws.send(
-        JSON.stringify({
-          type: 'input_audio_buffer.append',
-          audio: serializedAudio,
-        }),
-      );
-    },
-    close: () => {
-      if (!ws) {
-        console.error('🔌 close: WebSocket not initialized');
-        return;
-      }
+  return new Promise<void>((resolve) => {
+    // resolve promise when the web socket is closed
+    ws?.on('close', () => {
+      resolve();
+      ws = null;
+    });
+  });
+}
 
-      ws.close();
-    },
-  };
+export function sendMessage(message: string) {
+  if (!ws) {
+    console.error('🔌 Unable to send message, server was not started');
+    return;
+  }
+  ws.send(message);
+}
+
+export function stopServer() {
+  if (!ws) {
+    console.error('🔌 Unable to stop server, server was not started');
+    return;
+  }
+  ws.close();
 }

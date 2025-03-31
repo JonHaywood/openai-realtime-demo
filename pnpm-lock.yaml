@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@types/ws':
-        specifier: ^8.18.0
-        version: 8.18.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -39,6 +36,9 @@ importers:
       '@types/node':
         specifier: ^18.11.18
         version: 18.19.42
+      '@types/ws':
+        specifier: ^8.18.0
+        version: 8.18.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.62.0
         version: 5.62.0(@typescript-eslint/parser@7.18.0(eslint@9.4.0)(typescript@5.5.4))(eslint@9.4.0)(typescript@5.5.4)
