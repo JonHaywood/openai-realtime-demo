@@ -6,8 +6,10 @@ let rt: OpenAIRealtimeWS | null = null;
 
 export async function startRealtimeWebSocket({
   onOpen,
+  onClose,
 }: {
   onOpen: (context: RealtimeContext) => void;
+  onClose: () => void;
 }): Promise<void> {
   rt = new OpenAIRealtimeWS({
     model: 'gpt-4o-realtime-preview-2024-12-17',
@@ -31,7 +33,13 @@ export async function startRealtimeWebSocket({
 
   return new Promise<void>((resolve) => {
     // resolve promise when the web socket is closed
-    rt?.socket.on('close', () => {
+    rt!.socket.on('close', () => {
+      try {
+        onClose();
+      } catch {
+        console.error('[socket] 🔌 Error occurred running onClose.');
+      }
+      // resolve the promise
       resolve();
       rt = null;
     });
@@ -40,7 +48,9 @@ export async function startRealtimeWebSocket({
 
 export function closeRealtimeWebSocket() {
   if (!rt) {
-    console.error('🔌 Unable to stop web socket, server was not started');
+    console.error(
+      '[socket] 🔌 Unable to stop web socket, server was not started',
+    );
     return;
   }
   rt.close();

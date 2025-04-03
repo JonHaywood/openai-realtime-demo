@@ -22,15 +22,15 @@ export function createMicrophone(): Microphone {
       micInputStream.on('data', (data: Buffer) => processAudio(data));
 
       micInputStream.on('error', (err) => {
-        console.error('🎤 Error in Input Stream: ' + err);
+        console.error('[mic] 🎤 Error in Input Stream: ' + err);
       });
 
       micInstance.start();
-      console.log('🎤 Microphone started');
+      console.log('[mic] 🎤 Microphone started.');
     },
     stopRecording: () => {
       micInstance.stop();
-      console.log('🎤 Microphone stopped');
+      console.log('[mic] 🎤 Microphone stopped.');
     },
   };
 }

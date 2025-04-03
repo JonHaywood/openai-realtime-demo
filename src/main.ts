@@ -6,18 +6,22 @@ import {
 } from './openai/realtimeWebSocket';
 import { RealtimeContext } from './openai/types';
 
-function wireupShutdownHandlers(onShutdown: () => void) {
+function setupProcessShutdownHandlers() {
+  const shutdown = () => {
+    closeRealtimeWebSocket();
+  };
+
   process.on('SIGINT', async () => {
     console.log('SIGINT received, shutting down...');
-    onShutdown();
+    shutdown();
   });
   process.on('SIGTERM', async () => {
     console.log('SIGTERM received, shutting down...');
-    onShutdown();
+    shutdown();
   });
   process.on('uncaughtException', async (err) => {
     console.error('Uncaught exception:', err);
-    onShutdown();
+    shutdown();
   });
 }
 
@@ -36,24 +40,27 @@ async function main() {
   // create microphone instance
   const microphone = createMicrophone();
 
-  // when the user stops the app, run the callback
-  wireupShutdownHandlers(() => {
-    microphone.stopRecording();
-    closeRealtimeWebSocket();
-  });
+  // handlers for when user presses Ctrl+C or errors occur
+  setupProcessShutdownHandlers();
 
   // start server and wait until is stops
-  console.log('🖥️ Starting web socket...');
+  console.log('[main] 🤖 Starting web socket...');
   await startRealtimeWebSocket({
     onOpen: (context) => {
-      console.log('🖥️ Web socket started. Press Ctrl+C to stop.');
+      console.log('[main] 🤖 Web socket started. Press Ctrl+C to stop.');
 
       // once connected, immedately start streaming microphone data
       streamMicrophoneDataToServer(context, microphone);
     },
+    onClose: () => {
+      console.log('[main] 🤖 Web socket closed.');
+
+      // stop the microphone
+      microphone.stopRecording();
+    },
   });
 
-  console.log('🖥️ Web socket closed. Shutdown complete.');
+  console.log('[main] 🤖 Shutdown complete, exiting.');
 }
 
 main();
