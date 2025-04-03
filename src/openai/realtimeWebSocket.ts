@@ -4,6 +4,17 @@ import { RealtimeContext } from './types';
 
 let rt: OpenAIRealtimeWS | null = null;
 
+function createContext(): RealtimeContext {
+  return {
+    sendMessage: (message) => {
+      rt?.send(message);
+    },
+    registerHandler: (event, handler) => {
+      rt?.on(event, handler);
+    },
+  };
+}
+
 export async function startRealtimeWebSocket({
   onOpen,
   onClose,
@@ -16,14 +27,7 @@ export async function startRealtimeWebSocket({
   });
 
   // Use context object to avoid passing around the OpenAIRealtimeWS instance
-  const context: RealtimeContext = {
-    sendMessage: (message) => {
-      rt?.send(message);
-    },
-    registerHandler: (event, handler) => {
-      rt?.on(event, handler);
-    },
-  };
+  const context = createContext();
 
   // wire up handlers for the web socket
   rt.socket.on('open', () => onOpen(context));
@@ -32,7 +36,8 @@ export async function startRealtimeWebSocket({
   wireupRealtimeHandlers(context);
 
   return new Promise<void>((resolve) => {
-    // resolve promise when the web socket is closed
+    // resolve promise when the web socket is closed. note: rt is not
+    // null because this closure is created right after the assignment above
     rt!.socket.on('close', () => {
       try {
         onClose();
