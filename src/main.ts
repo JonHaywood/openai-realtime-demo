@@ -1,6 +1,10 @@
-import { createAudioMessage, handleOpenAIMessages } from './messages';
 import { createMicrophone, Microphone } from './microphone';
-import { sendMessage, startServer, stopServer } from './server';
+import { createAudioMessage } from './openai/messages';
+import {
+  closeRealtimeWebSocket,
+  startRealtimeWebSocket,
+} from './openai/realtimeWebSocket';
+import { RealtimeContext } from './openai/types';
 
 function wireupShutdownHandlers(onShutdown: () => void) {
   process.on('SIGINT', async () => {
@@ -17,11 +21,14 @@ function wireupShutdownHandlers(onShutdown: () => void) {
   });
 }
 
-function streamMicrophoneDataToServer(microphone: Microphone) {
+function streamMicrophoneDataToServer(
+  context: RealtimeContext,
+  microphone: Microphone,
+) {
   microphone.startRecording(async (data) => {
     // continuously stream microphone data to Open AI
     const audioMessage = createAudioMessage(data);
-    sendMessage(audioMessage);
+    context.sendMessage(audioMessage);
   });
 }
 
@@ -32,25 +39,21 @@ async function main() {
   // when the user stops the app, run the callback
   wireupShutdownHandlers(() => {
     microphone.stopRecording();
-    stopServer();
+    closeRealtimeWebSocket();
   });
 
   // start server and wait until is stops
-  console.log('🖥️ Starting server...');
-  await startServer({
-    onOpen: () => {
-      console.log('🖥️ Server started. Press Ctrl+C to stop.');
+  console.log('🖥️ Starting web socket...');
+  await startRealtimeWebSocket({
+    onOpen: (context) => {
+      console.log('🖥️ Web socket started. Press Ctrl+C to stop.');
 
-      // once connected, start streaming microphone data
-      streamMicrophoneDataToServer(microphone);
-    },
-    onMessage: (message) => {
-      // all incoming messages are handled here
-      handleOpenAIMessages(message);
+      // once connected, immedately start streaming microphone data
+      streamMicrophoneDataToServer(context, microphone);
     },
   });
 
-  console.log('🖥️ Server has stopped. Shutdown complete.');
+  console.log('🖥️ Web socket closed. Shutdown complete.');
 }
 
 main();
