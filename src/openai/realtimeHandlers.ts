@@ -2,6 +2,7 @@ import { ResponseAudioDeltaEvent } from 'openai/resources/responses/responses';
 import { playAudio } from '../speaker';
 import { createInstructionMessage } from './messages';
 import { RealtimeContext } from './types';
+import { INSTRUCTIONS } from '../env';
 
 export function wireupRealtimeHandlers(ctx: RealtimeContext) {
   ctx.registerHandler('session.created', () => handleSessionCreated(ctx));
@@ -16,9 +17,7 @@ export function wireupRealtimeHandlers(ctx: RealtimeContext) {
 function handleSessionCreated(context: RealtimeContext) {
   console.log('[openai] 🕒 Session created. Sending update instructions.');
 
-  const message = createInstructionMessage(
-    'You name is Bailiwick. You are a helpful, personal home assistant.',
-  );
+  const message = createInstructionMessage(INSTRUCTIONS);
   context.sendMessage(message);
 }
 
