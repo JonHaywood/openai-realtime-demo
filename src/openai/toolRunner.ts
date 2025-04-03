@@ -1,11 +1,7 @@
 import { AutoParseableTool } from 'openai/lib/parser';
 import tools from './tools';
 
-export interface ToolResult {
-  wasSuccessful: boolean;
-  output: string;
-  error?: string;
-}
+export type ToolResult = [wasSuccessful: boolean, output: string];
 
 /**
  * Runs a tool by name with the given arguments.
@@ -34,16 +30,9 @@ export async function runTool(
 
     if (!result) throw new Error(`Tool "${toolName}" did not return a result.`);
 
-    return {
-      wasSuccessful: true,
-      output: result,
-      error: undefined,
-    };
+    return [true, result];
   } catch (error) {
-    return {
-      wasSuccessful: false,
-      output: '',
-      error: (error as Error).message,
-    };
+    console.error('[toolrunner] 🛠️⚠️ Error running tool:', error);
+    return [false, ''];
   }
 }

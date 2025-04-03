@@ -53,27 +53,17 @@ async function handleResponseDone(
 
   if (!functionCalls || functionCalls.length === 0) return;
 
-  // run all tools and send the results back to Open AI
-  for (const functionCall of functionCalls) {
+  for (const { call_id, name, arguments: args } of functionCalls) {
     // this shouldn't happen, but if no call_id is present, can't do anything
-    if (!functionCall.call_id) continue;
+    if (!call_id) continue;
 
     // invoke the tool
-    const result = await runTool(functionCall.name, functionCall.arguments);
+    const [wasSuccessful, output] = await runTool(name, args);
 
-    if (!result.wasSuccessful) {
-      console.error(
-        '[openai] ⚠️ Error running tool:',
-        result.error || 'Unknown error',
-      );
-      continue;
-    }
+    if (!wasSuccessful) continue;
 
     // send the result back to Open AI
-    const toolResponseMessage = createToolResponseMessage(
-      functionCall.call_id,
-      result.output,
-    );
+    const toolResponseMessage = createToolResponseMessage(call_id, output);
     context.sendMessage(toolResponseMessage);
   }
 
