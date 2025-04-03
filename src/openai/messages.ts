@@ -5,6 +5,7 @@ import {
   SessionUpdateEvent,
 } from 'openai/resources/beta/realtime/realtime';
 import tools from './tools';
+import { VOICE } from '../env';
 
 export function createAudioMessage(data: Buffer): InputAudioBufferAppendEvent {
   const serializedAudio = data.toString('base64');
@@ -22,7 +23,7 @@ export function createInstructionMessage(
     session: {
       instructions,
       modalities: ['text', 'audio'],
-      voice: 'echo',
+      voice: VOICE,
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       tools: tools.map((tool) => ({
