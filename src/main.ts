@@ -43,7 +43,7 @@ async function main() {
   // handlers for when user presses Ctrl+C or errors occur
   setupProcessShutdownHandlers();
 
-  // start server and wait until is stops
+  // start web socket and wait until it closes
   console.log('[main] 🤖 Starting web socket...');
   await startRealtimeWebSocket({
     onOpen: (context) => {
