@@ -1,58 +1,79 @@
+# Open AI Realtime Demo
 
-# ts-easy 🛠️
+This project demonstrates how to use OpenAI's new Realtime API beta with audio streaming.
 
-**ts-easy** is your minimalist TypeScript starter for Node.js projects. No fluff, just the essentials to get you up and running with TypeScript, ESLint, Prettier, and more. Perfect for initiating any TypeScript project, whether it's a CLI tool, library, or something entirely different.
+The primary focus is on streaming audio data directly between the microphone and OpenAI's servers, and receiving audio responses to play through speakers in real time.
 
-## Features ✨
+Previously, achieving similar functionality required a multi-step process:
+- Capturing audio input.
+- Transcribing the audio to text.
+- Sending the text to OpenAI for processing.
+- Waiting for a response.
+- Sending the response back to OpenAI for text-to-speech conversion.
+- Playing the generated audio.
 
-- **TypeScript**: Strongly typed JavaScript for the win.
-- **ESLint**: Keep your code clean and consistent.
-- **Prettier**: Automatic code formatting to keep everything looking sharp.
-- **VSCode Settings**: Optimized workspace settings out of the box.
-- **pnpm**: Fast, disk space-efficient package manager.
-- **ts-node-dev**: Instant feedback with autoreload on save.
-- **tsup**: Super fast TypeScript bundler.
-- **Zod**: Type-safe schema validation made easy.
+With the new Realtime API, this process is significantly streamlined. Audio is streamed directly to and from OpenAI, eliminating intermediate steps and greatly reducing latency.
 
 ## Getting Started 🚀
 
-### 1. Clone the Repository
+### Prerequisites
 
-```bash
-git clone https://github.com/yourusername/ts-easy.git
-cd ts-easy
-```
+- **Node.js**: Ensure you have Node.js installed (v16 or higher recommended).
+- **pnpm**: Install pnpm as the package manager.
 
-### 2. Install Dependencies
+### Installation
 
-Make sure you have pnpm installed. Then, run:
+1. Clone the repository:
 
-```bash
-pnpm install
-```
+   ```bash
+   git clone https://github.com/yourusername/openai-realtime-demo.git
+   cd openai-realtime-demo
+   ```
 
-### 3. Start Developing
+2. Install dependencies:
 
-Kickstart your development with autoreload on save:
+   ```bash
+   pnpm install
+   ```
+
+3. Set up your OpenAI API key:
+
+   - Create a `.env` file in the project root.
+   - Add your OpenAI API key:
+
+     ```env
+     OPENAI_API_KEY=your-api-key-here
+     ```
+
+### Running the Project
+
+Start the development server with hot-reloading:
 
 ```bash
 pnpm dev
 ```
 
-### 4. Build for Production
-
-Ready to ship? Build your project with:
+Build the project for production:
 
 ```bash
 pnpm build
 ```
 
-### Project Structure 📁
+Run the production build:
+
+```bash
+pnpm start
+```
+
+## Project Structure 📁
 
 ```bash
 ts-easy/
 ├── src/
-│   └── main.ts      	# Entry point for your TypeScript project
+│   └── main.ts      	# Entry point for the application
+│   └── ...             # All other source files
+│   └── openai/         # Open AI-specific code
+│      └── tools/       # example tools for function calling
 ├── .vscode/
 │   └── settings.json 	# VSCode workspace settings
 │   └── extensions.json # Recommended VSCode extensions
@@ -64,21 +85,28 @@ ts-easy/
 └── pnpm-lock.yaml   	# Dependency lockfile
 ```
 
-### Scripts 📝
+## How It Works 🛠️
 
-* **pnpm dev:** Run your project with autoreload.
-* **pnpm start:** Run your build.
-* **pnpm lint:** Lint your TypeScript code using ESLint.
-* **pnpm lint:fix:** Lint and fix your TypeScript code using ESLint.
-* **pnpm format:** Format your code with Prettier.
-* **pnpm build:** Bundle your project using tsup.
+The basic steps are:
 
-### Why ts-easy? 🤔
+1. Start web socket connection to Open AI.
+2. Send an update message containing prompt instructions and available tools.
+3. Capture audio input from microphone and serialize it to a string.
+4. Send it to Open AI. Continue streaming input.
+5. Handle audio response. Deserialize it and play the audio.
 
-* **Minimal:** Just the essentials, no bloat.
-* **Flexible:** Use it for any TypeScript-based project.
-* **Modern:** Includes the latest and greatest tools like tsup and Zod.
+"Function calling"/"tools" adds a few additional steps. If the bot determines it should call a tool instead of return an audio response, the following steps are executed:
 
-### License 📄
+6. A response is returned indicating a tool should be called.
+7. The code calls the tool.
+8. The code sends the output of the tool to Open AI.
+9. The code sends a message to Open AI indicating the tool output is complete.
+10. Return back to #5.
+
+## Contributing 🤝
+
+Contributions are welcome! Feel free to open issues or submit pull requests to improve the project.
+
+## License 📄
 
 This project is licensed under the MIT License.
