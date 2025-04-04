@@ -20,6 +20,9 @@ With the new Realtime API, this process is significantly streamlined. Audio is s
 
 - **Node.js**: Ensure you have Node.js installed (v16 or higher recommended).
 - **pnpm**: Install pnpm as the package manager.
+- **audio input**: uses the [mic](https://www.npmjs.com/package/mic) package to access the microphone. This requires that either [arecord](http://alsa-project.org/) (for Linux) or [sox](http://sox.sourceforge.net/) is configured.
+- **audio output**: uses the [speaker](https://www.npmjs.com/package/speaker) package to play audio. It's output is backed by `mpg123's` audio output modules, which in turn use any number of audio backends commonly found on most operating systems.
+
 
 ### Installation
 
@@ -64,6 +67,20 @@ Run the production build:
 ```bash
 pnpm start
 ```
+
+## How To Use It 🎤
+
+Just start talking to it!
+
+It has tools to support 2 specific scenarios:
+
+- The current date and time
+- Asking trivia questions
+
+Ask about them! 🧑🏾‍🔬
+
+When you're done, hit `Ctrl+C` to stop it.
+
 
 ## Project Structure 📁
 
