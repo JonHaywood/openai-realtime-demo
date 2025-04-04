@@ -1,18 +1,8 @@
 # Open AI Realtime Demo
 
-This project demonstrates how to use OpenAI's new Realtime API beta with audio streaming.
+This project demonstrates how to use OpenAI's new Realtime API beta with audio streaming. When the user speaks, their audio is streamed to Open AI and Open AI's audio response is streamed back to the client.
 
-The primary focus is on streaming audio data directly between the microphone and OpenAI's servers, and receiving audio responses to play through speakers in real time.
-
-Previously, achieving similar functionality required a multi-step process:
-- Capturing audio input.
-- Transcribing the audio to text.
-- Sending the text to OpenAI for processing.
-- Waiting for a response.
-- Sending the response back to OpenAI for text-to-speech conversion.
-- Playing the generated audio.
-
-With the new Realtime API, this process is significantly streamlined. Audio is streamed directly to and from OpenAI, eliminating intermediate steps and greatly reducing latency.
+Previously, achieving similar functionality required a multi-step process of transcribing audio to text, generating a response and converting that response to audio. With the new Realtime API, this process is significantly streamlined. Audio is streamed directly to and from OpenAI, eliminating intermediate steps and greatly reducing latency.
 
 ## Getting Started 🚀
 
