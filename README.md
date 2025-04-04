@@ -95,7 +95,7 @@ The basic steps are:
 4. Send it to Open AI. Continue streaming input.
 5. Handle audio response. Deserialize it and play the audio.
 
-"Function calling"/"tools" adds a few additional steps. If the bot determines it should call a tool instead of return an audio response, the following steps are executed:
+"Function calling"/"tools" adds additional steps. If the bot determines it should call a tool instead of return an audio response, the following steps are executed:
 
 6. A response is returned indicating a tool should be called.
 7. The code calls the tool.
